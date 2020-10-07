@@ -43,7 +43,7 @@ The yy command works well with a count: to yank 11 lines, for example, type 11yy
 
 You can also use the P or p commands immediately after any of the deletion commands discussed earlier. This action puts the text you deleted above or below the cursor, respectively.
 
-## Caution
+#### Caution
 Use only cursor-moving commands between yanking or deleting and putting. If you delete or yank any other text before putting the new text in place, the lines you yanked or deleted are lost.
 
 # Moving Lines
