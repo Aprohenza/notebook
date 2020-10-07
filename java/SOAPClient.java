@@ -2,18 +2,21 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-public class Client {
+public class SoapClient {
 	
 	public static void main(String[] args) {
 		
 		String url;
 		String request;
 		String soapAction = "";
+		
+		int[] ACCEPTED_RESPONSES = {HttpURLConnection.HTTP_OK};
 		
 		if(args.length != 2) {
 			System.out.println("The sintax in wrong. You must provide [url] and [request].");
@@ -27,9 +30,10 @@ public class Client {
 				
 				//load content request...
 				File requestFile = new File(request);
-				if(!requestFile.exists()) {
+				
+				if(!requestFile.exists())
 					throw new FileNotFoundException();
-				}
+				
 				
 				BufferedReader bReader = new BufferedReader(new FileReader(requestFile));
 				
@@ -39,6 +43,8 @@ public class Client {
 				while((line = bReader.readLine()) != null) {
 					requestContent.append(line);
 				}
+				
+				bReader.close();
 				
 				
 				URL url_ = new URL(url);
@@ -60,34 +66,28 @@ public class Client {
 				// For POST only - END
 				
 				int responseCode = con.getResponseCode();
+				
 				System.out.println("\nRESPONSE:");
 				System.out.println("POST Response Code :: " + responseCode);
 				
-				if (responseCode == HttpURLConnection.HTTP_OK) { // success
-					BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
-					String inputLine;
-					StringBuffer response = new StringBuffer();
+				InputStream inputStream;
+				
+				if (responseCode == HttpURLConnection.HTTP_OK) inputStream = con.getInputStream();
+				else inputStream = con.getErrorStream();
+				
+				BufferedReader in = new BufferedReader(new InputStreamReader(inputStream));
+				
+				String inputLine;
+				StringBuffer response = new StringBuffer();
 
-					while ((inputLine = in.readLine()) != null) {
-						response.append(inputLine);
-					}
-					in.close();
-
-					// print result
-					System.out.println(response.toString());
-				} else {
-					BufferedReader in = new BufferedReader(new InputStreamReader(con.getErrorStream()));
-					String inputLine;
-					StringBuffer response = new StringBuffer();
-
-					while ((inputLine = in.readLine()) != null) {
-						response.append(inputLine);
-					}
-					in.close();
-
-					// print result
-					System.out.println(response.toString());
+				while ((inputLine = in.readLine()) != null) {
+					response.append(inputLine);
 				}
+				
+				in.close();
+
+				// print result
+				System.out.println(response.toString());
 				
 			} catch (Exception e) {
 				// TODO: handle exception
